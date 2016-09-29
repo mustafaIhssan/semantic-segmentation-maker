@@ -7,12 +7,7 @@ from skimage.util import img_as_float
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
-from skimage import img_as_ubyte
 
-
-x = 0
-y = 0
-# fun hell
 
 def key(event):
     root.event_generate('<Motion>', warp=True, x=50, y=50)
@@ -20,10 +15,10 @@ def key(event):
 def motion(event):
     print('motion {}, {}'.format(event.x, event.y))
 
-def segmentation_now(image):
+def segmentation_now(image, n_segments = 500,sigma = 2):
 	segments = slic(img_as_float(image), n_segments = 500, sigma = 2)
 	segmentats_with_bounderies = mark_boundaries(img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)), segments)
-	cv2.imwrite("seg/segment.jpg",segmentats_with_bounderies)
+	# cv2.imwrite("seg/segment.jpg",segmentats_with_bounderies)
 
 	allsegs = []
 	# loop over the unique segment values
@@ -49,9 +44,9 @@ def click2Segment(event, segments, image):
 		if sum_of_pixel > 0:
 			clicked_index = index
 			clicked_segment = segment
-	Change_part_color(clicked_index, clicked_segment, [00,22,66])
+	Change_part_color(clicked_index, clicked_segment, [00,22,66], image)
 
-def Change_part_color(index, segment, color):
+def Change_part_color(index, segment, color, image):
 	[r,g,b] = color
 	[y,x,z] = image.shape
 	# loop through every pixel
@@ -61,48 +56,19 @@ def Change_part_color(index, segment, color):
 			seg_p = segment[y][x][0]
 			# on corosponding pixel in both oreginal and segment
 			if (im_p == seg_p):
-				print im_p
-				print seg_p
-				image[y][x] = [r,g,b] 
-	cv2.imshow('seg_%d.jpg' % index, image)
-	cv2.waitKey(0)
+				# print im_p
+				# print seg_p
+				image[y][x] = [++r,++g,++b] 
+	# cv2.imshow('seg_%d.jpg' % index, image)
+	# cv2.waitKey(0)
+	return image
 				
 
 
 # construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required = True, help = "Path to the image")
-args = vars(ap.parse_args())
-
-
-# segment the image
-image = cv2.imread(args["image"])
-[segments, segmentats_with_bounderies] = segmentation_now(image)
-segmentats_with_bounderies = img_as_ubyte(segmentats_with_bounderies)
-
-# GUI Stuff
-root = Tk()
-
-#Setting it up
-img = ImageTk.PhotoImage(Image.fromarray(segmentats_with_bounderies,'RGB'))
-
-#Displaying it
-imglabel = Label(root, image=img).grid(row=1, column=1)        
-
-
-
-root.bind('<Key>', key)
-# root.bind('<Button-1>', motion)
-root.bind('<Button-1>', lambda event : click2Segment(event, segments, image))
-
-
-
-
-
-
-
-# Run 
-root.mainloop()
+# ap = argparse.ArgumentParser()
+# ap.add_argument("-i", "--image", required = True, help = "Path to the image")
+# args = vars(ap.parse_args())
 
 
 
